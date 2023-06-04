@@ -84,8 +84,6 @@ public class PostController extends HttpServlet {
 			dao.addPost(p);
 		} catch (Exception e) {
 			e.printStackTrace();
-			ctx.log("뉴스 추가 과정에서 문제 발생!!");
-			request.setAttribute("error", "뉴스가 정상적으로 등록되지 않았습니다!!");
 			return listPost(request);
 		}
 		
@@ -99,8 +97,6 @@ public class PostController extends HttpServlet {
 			dao.delPost(aid);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			ctx.log("뉴스 삭제 과정에서 문제 발생!!");
-			request.setAttribute("error", "뉴스가 정상적으로 삭제되지 않았습니다!!");
 			return listPost(request);
 		}
 		return "redirect:/post.nhn?action=listPost";
@@ -113,8 +109,6 @@ public class PostController extends HttpServlet {
 			request.setAttribute("post", list);
 		} catch (Exception e) {
 			e.printStackTrace();
-			ctx.log("뉴스 목록 생성 과정에서 문제 발생!!");
-			request.setAttribute("error", "뉴스 목록이 정상적으로 처리되지 않았습니다!!");
 		}
     	return "guestbook/postList.jsp";
     }
@@ -126,8 +120,6 @@ public class PostController extends HttpServlet {
     		request.setAttribute("post", p);
     	} catch (SQLException e) {
 			e.printStackTrace();
-			ctx.log("뉴스를 가져오는 과정에서 문제 발생!!");
-			request.setAttribute("error", "뉴스를 정상적으로 가져오지 못했습니다!!");
 		}
     	return "guestbook/viewPost.jsp";
     }
@@ -140,8 +132,6 @@ public class PostController extends HttpServlet {
 			dao.updatePost(p, aid);
 		} catch (Exception e) {
 			e.printStackTrace();
-			ctx.log("뉴스 추가 과정에서 문제 발생!!");
-			request.setAttribute("error", "뉴스가 정상적으로 등록되지 않았습니다!!");
 			return listPost(request);
 		}
 		

@@ -96,7 +96,6 @@ public class PostDAO {
 		
 		try(conn; pstmt) {
 			pstmt.setInt(1, aid);
-			// 삭제된 뉴스 기사가 없을 경우
 			if(pstmt.executeUpdate() == 0) {
 				throw new SQLException("DB에러");
 			}
