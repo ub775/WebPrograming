@@ -1,4 +1,4 @@
-package guestbook;
+package ch10;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,19 +20,19 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.beanutils.BeanUtils;
 
 
-@WebServlet("/post.nhn")
-public class PostController extends HttpServlet {
+@WebServlet("/news.nhn")
+public class NewsController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
-	private PostDAO dao;
+	private NewsDAO dao;
 	private ServletContext ctx;
 	
 	// 웹 리소스 기본 경로 지정
-	private final String START_PAGE = "guestbook/postList.jsp";
+	private final String START_PAGE = "ch10/newsList.jsp";
 	
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		dao = new PostDAO();
+		dao = new NewsDAO();
 		ctx = getServletContext();		
 	}
 
@@ -40,7 +40,7 @@ public class PostController extends HttpServlet {
 		request.setCharacterEncoding("utf-8");
 		String action = request.getParameter("action");
 		
-		dao = new PostDAO();
+		dao = new NewsDAO();
 		
 		// 자바 리플렉션을 사용해 if, switch 없이 요청에 따라 구현 메서드가 실행되도록 함.
 		Method m;
@@ -48,7 +48,7 @@ public class PostController extends HttpServlet {
 		
 		// action 파라미터 없이 접근한 경우
 		if (action == null) {
-			action = "listPost";
+			action = "listNews";
 		}
 		
 		try {
@@ -59,7 +59,9 @@ public class PostController extends HttpServlet {
 			view = (String)m.invoke(this, request);
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
+			// 에러 로그를 남기고 view 를 로그인 화면으로 지정, 앞에서와 같이 redirection 사용도 가능.
 			ctx.log("요청 action 없음!!");
+			request.setAttribute("error", "action 파라미터가 잘못 되었습니다!!");
 			view = START_PAGE;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -76,78 +78,64 @@ public class PostController extends HttpServlet {
 			dispatcher.forward(request, response);	
 		}
 	}
-	
-    public String addPost(HttpServletRequest request) {
-		Post p = new Post();
-		try {
-			BeanUtils.populate(p, request.getParameterMap());
-			dao.addPost(p);
+    
+    public String addNews(HttpServletRequest request) {
+		News n = new News();
+		try {					        
+	        // 입력값을 News 객체로 매핑
+			BeanUtils.populate(n, request.getParameterMap());
+			System.out.println(getBody(request));
+			dao.addNews(n);
 		} catch (Exception e) {
 			e.printStackTrace();
 			ctx.log("뉴스 추가 과정에서 문제 발생!!");
 			request.setAttribute("error", "뉴스가 정상적으로 등록되지 않았습니다!!");
-			return listPost(request);
+			return listNews(request);
 		}
 		
-		return "redirect:/post.nhn?action=listPost";
+		return "redirect:/news.nhn?action=listNews";
 		
 	}
 
-	public String deletePost(HttpServletRequest request) {
+	public String deleteNews(HttpServletRequest request) {
     	int aid = Integer.parseInt(request.getParameter("aid"));
 		try {
-			dao.delPost(aid);
+			dao.delNews(aid);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			ctx.log("뉴스 삭제 과정에서 문제 발생!!");
 			request.setAttribute("error", "뉴스가 정상적으로 삭제되지 않았습니다!!");
-			return listPost(request);
+			return listNews(request);
 		}
-		return "redirect:/post.nhn?action=listPost";
+		return "redirect:/news.nhn?action=listNews";
 	}
-	
-	public String listPost(HttpServletRequest request) {
-		List<Post> list;
+
+	public String listNews(HttpServletRequest request) {
+    	List<News> list;
 		try {
 			list = dao.getAll();
-			request.setAttribute("post", list);
+	    	request.setAttribute("newslist", list);
 		} catch (Exception e) {
 			e.printStackTrace();
 			ctx.log("뉴스 목록 생성 과정에서 문제 발생!!");
 			request.setAttribute("error", "뉴스 목록이 정상적으로 처리되지 않았습니다!!");
 		}
-    	return "guestbook/postList.jsp";
+    	return "ch10/newsList.jsp";
     }
     
-    public String getPost(HttpServletRequest request) {
-    	int aid = Integer.parseInt(request.getParameter("aid"));
-    	try {
-    		Post p = dao.getPost(aid);
-    		request.setAttribute("post", p);
-    	} catch (SQLException e) {
+    public String getNews(HttpServletRequest request) {
+        int aid = Integer.parseInt(request.getParameter("aid"));
+        try {
+			News n = dao.getNews(aid);
+			request.setAttribute("news", n);
+		} catch (SQLException e) {
 			e.printStackTrace();
 			ctx.log("뉴스를 가져오는 과정에서 문제 발생!!");
 			request.setAttribute("error", "뉴스를 정상적으로 가져오지 못했습니다!!");
 		}
-    	return "guestbook/viewPost.jsp";
+
+    	return "ch10/newsView.jsp";
     }
-    
-    public String updatePost(HttpServletRequest request) {
-		Post p = new Post();
-		int aid = Integer.parseInt(request.getParameter("aid"));
-		try {
-			BeanUtils.populate(p, request.getParameterMap());
-			dao.updatePost(p, aid);
-		} catch (Exception e) {
-			e.printStackTrace();
-			ctx.log("뉴스 추가 과정에서 문제 발생!!");
-			request.setAttribute("error", "뉴스가 정상적으로 등록되지 않았습니다!!");
-			return listPost(request);
-		}
-		
-		return "redirect:/post.nhn?action=listPost";
-		
-	}
     
     public static String getBody(HttpServletRequest request) throws IOException {
     	 

@@ -41,7 +41,7 @@
 		<hr />
 		<div id="editForm">
 			<div class="form-group">
-				<form method="post" action="/post.nhn?action=updatePost">
+				<form method="post" action="/post.nhn?action=updatePost&aid=${post.aid }">
 					<div class="input-group mb-3">
 				  		<div class="input-group-prepend">
 				    	<span class="input-group-text" id="inputGroup-sizing-default">작성자</span>
